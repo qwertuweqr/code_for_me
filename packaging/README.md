@@ -33,3 +33,24 @@ sudo udevadm control --reload && sudo udevadm trigger
 ```
 
 See [`99-coolcontrol.rules`](99-coolcontrol.rules).
+
+## Continuous integration & releases
+
+Ready-to-use GitHub Actions workflows live in
+[`github-workflows/`](github-workflows/):
+
+- `ci.yml` — builds the app and runs the tests on every push / pull request.
+- `release.yml` — builds a self-contained AppImage and publishes it as a
+  GitHub Release when a version tag (e.g. `v1.0.0`) is pushed.
+
+To enable them, copy them into `.github/workflows/` (this requires a token
+with the `workflow` scope, e.g. a normal push from the GitHub web UI or your
+own machine):
+
+```bash
+mkdir -p .github/workflows
+cp packaging/github-workflows/*.yml .github/workflows/
+git add .github/workflows && git commit -m "ci: enable workflows" && git push
+git tag v1.0.0 && git push origin v1.0.0   # triggers the AppImage release
+```
+
