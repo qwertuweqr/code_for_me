@@ -1,0 +1,59 @@
+name: Release
+
+# Build a self-contained AppImage and publish it as a GitHub Release whenever
+# a version tag (e.g. v1.0.0) is pushed. Can also be run manually.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  appimage:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake ninja-build \
+            qt6-base-dev libgl1-mesa-dev libfuse2 file curl
+
+      - name: Build AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: "1"  # GitHub runners have no FUSE
+        run: bash packaging/build-appimage.sh
+
+      - name: Build source tarball of binaries
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+          mkdir -p dist/coolcontrol
+          cp build/coolcontrol build/coolcontrol-cli dist/coolcontrol/
+          cp README.md docs/README.ru.md LICENSE dist/coolcontrol/
+          tar -czf coolcontrol-linux-x86_64.tar.gz -C dist coolcontrol
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            CoolControl-x86_64.AppImage
+            coolcontrol-linux-x86_64.tar.gz
+          generate_release_notes: true
+          body: |
+            ## CoolControl — управление кулерами для Linux
+
+            **Как скачать и запустить (AppImage):**
+            1. Скачайте `CoolControl-x86_64.AppImage` ниже.
+            2. Сделайте файл исполняемым: `chmod +x CoolControl-x86_64.AppImage`
+            3. Запустите: `./CoolControl-x86_64.AppImage`
+
+            Запись скорости вентиляторов на реальном железе требует root:
+            `pkexec ./CoolControl-x86_64.AppImage`.
+
+            Подробная инструкция: [docs/README.ru.md](https://github.com/${{ github.repository }}/blob/main/docs/README.ru.md).

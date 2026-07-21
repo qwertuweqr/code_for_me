@@ -1,22 +1,24 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
+# Build output
 build/
-dist/
-.venv/
-venv/
+build-*/
+*.o
+*.a
+*.so
+*.AppImage
+AppDir/
 
-# Test / tooling
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*_autogen/
 
 # Editors / OS
 .vscode/
 .idea/
 *.swp
 .DS_Store
+
+# Tooling scaffolding
+.claude/
+skills-lock.json

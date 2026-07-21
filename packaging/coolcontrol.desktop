@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=CoolControl
+GenericName=Fan Control
+Comment=Manage fan and cooler power on Linux
+Exec=coolcontrol
+Icon=coolcontrol
+Terminal=false
+Categories=System;Settings;HardwareSettings;
+Keywords=fan;cooler;pwm;temperature;thermal;

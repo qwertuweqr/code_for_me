@@ -1,0 +1,12 @@
+# Make hwmon PWM attributes writable by the "fancontrol" group so CoolControl
+# can set fan speeds without running the whole app as root.
+#
+# Install:
+#   sudo groupadd -f fancontrol && sudo usermod -aG fancontrol "$USER"
+#   sudo cp 99-coolcontrol.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload && sudo udevadm trigger
+#
+# The RUN rule fixes up permissions on the pwmN attribute files themselves,
+# which the SUBSYSTEM match alone cannot do because they are child attributes.
+SUBSYSTEM=="hwmon", ACTION=="add|change", \
+    RUN+="/bin/sh -c 'chgrp fancontrol %S%p/pwm* 2>/dev/null; chmod g+w %S%p/pwm* %S%p/pwm*_enable 2>/dev/null; true'"
