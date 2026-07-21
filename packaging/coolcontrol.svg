@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="28" fill="#0e1017"/>
+  <g transform="translate(64,64)">
+    <circle r="46" fill="none" stroke="#2b3145" stroke-width="6"/>
+    <g fill="#5b8cff">
+      <!-- four fan blades -->
+      <path d="M0,-8 C18,-30 34,-24 34,-6 C22,-10 8,-6 0,0 Z"/>
+      <path d="M8,0 C30,-18 24,-34 6,-34 C10,-22 6,-8 0,0 Z" transform="rotate(90)"/>
+      <path d="M0,-8 C18,-30 34,-24 34,-6 C22,-10 8,-6 0,0 Z" transform="rotate(180)"/>
+      <path d="M8,0 C30,-18 24,-34 6,-34 C10,-22 6,-8 0,0 Z" transform="rotate(270)"/>
+    </g>
+    <circle r="9" fill="#45d0a8"/>
+  </g>
+</svg>
