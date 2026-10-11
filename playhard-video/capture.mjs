@@ -223,23 +223,38 @@ const interval = 1000 / fps;
 let frameNo = 0;
 let lastPng = null;
 
-async function renderFrame(save) {
+const prof = { net: 0, advance: 0, frame: 0, retries: 0, missed: 0 };
+const beginFrame = (ticks, save) => cdp.send("HeadlessExperimental.beginFrame", {
+  frameTimeTicks: ticks,
+  interval,
+  noDisplayUpdates: false,
+  screenshot: save ? { format: "png", optimizeForSpeed: true } : undefined,
+});
+
+// `motion`: the page is expected to change this frame (a scroll is running).
+async function renderFrame(save, motion) {
   const vt = frameNo * interval;
+  let t = Date.now();
   await waitNetwork();
+  prof.net += Date.now() - t; t = Date.now();
   await cdp.send("Runtime.evaluate", {
     expression: `window.__vtAdvance && window.__vtAdvance(${vt})`,
     awaitPromise: true,
   }).catch(() => {});
-  const res = await cdp.send("HeadlessExperimental.beginFrame", {
-    frameTimeTicks: ticks0 + vt,
-    interval,
-    noDisplayUpdates: false,
-    screenshot: save ? { format: "png", optimizeForSpeed: true } : undefined,
-  });
+  prof.advance += Date.now() - t; t = Date.now();
+  let res = await beginFrame(ticks0 + vt, save);
+  // No new frame while the page is moving means the renderer was late with
+  // its commit; ask again a hair later in compositor time (page time stays).
+  for (let r = 1; save && motion && !res.screenshotData && r <= 3; r++) {
+    prof.retries++;
+    res = await beginFrame(ticks0 + vt + r * 0.01, save);
+  }
+  prof.frame += Date.now() - t;
   frameNo++;
-  if (!save) return null;
+  if (!save) return { png: null, fresh: false };
   if (res.screenshotData) lastPng = Buffer.from(res.screenshotData, "base64");
-  return lastPng;
+  else if (motion) prof.missed++;
+  return { png: lastPng, fresh: !!res.screenshotData };
 }
 
 // ---------------------------------------------------------------------------
@@ -284,7 +299,9 @@ async function resolveTarget(to) {
       }
       el = best;
     } else {
-      el = document.querySelector(spec.replace(/^selector:/, ""));
+      // First visible match (pages often keep hidden copies of menus and modals).
+      const all = [...document.querySelectorAll(spec.replace(/^selector:/, ""))];
+      el = all.find(e => { const b = vis(e); return b && +getComputedStyle(e).opacity > 0; }) ?? all[0] ?? null;
     }
     if (!el) return null;
     const b = el.getBoundingClientRect();
@@ -420,6 +437,16 @@ async function begin(s, t) {
       input({ type: "mouseReleased", x: mouse.x, y: mouse.y, button: "left", clickCount: 1 });
       s.end = t + 0.05;
       break;
+    case "key": {
+      // Keyboard: {"do": "key", "key": "Escape"} (also Enter, Tab, ArrowDown, ...).
+      const KEYS = { Escape: 27, Enter: 13, Tab: 9, ArrowDown: 40, ArrowUp: 38, ArrowLeft: 37, ArrowRight: 39, " ": 32 };
+      const code = KEYS[s.key] ?? s.key.toUpperCase().charCodeAt(0);
+      const base = { key: s.key, code: s.key, windowsVirtualKeyCode: code, nativeVirtualKeyCode: code };
+      pending.push(cdp.send("Input.dispatchKeyEvent", { type: "rawKeyDown", ...base }).catch(() => {}));
+      pending.push(cdp.send("Input.dispatchKeyEvent", { type: "keyUp", ...base }).catch(() => {}));
+      s.end = t + 0.05;
+      break;
+    }
     case "eval":
       await evalJS(s.js);
       s.finished = true;
@@ -475,9 +502,13 @@ async function tick(t) {
     await begin(s, t);
     if (!s.finished) running.push(s);
   }
-  for (const s of running) await update(s, t);
+  for (const s of running) {
+    await update(s, t);
+    if (s.finished && s.do === "scroll") lastScrollEnd = t;
+  }
   running = running.filter(s => !s.finished);
 }
+let lastScrollEnd = -1e9;
 
 // ---------------------------------------------------------------------------
 // Recording loop. Steps use seconds from navigation start. Frames before
@@ -509,13 +540,14 @@ for (let i = 0; i < first + maxFrames; i++) {
   if (allDone && doneAt === null) doneAt = t;
   if (doneAt !== null && !sc.duration && t >= doneAt + tail) break;
   const visible = i >= first;
-  const png = await renderFrame(visible);
+  const motion = running.some(st => st.do === "scroll") || t - lastScrollEnd < 0.8;
+  const { png, fresh } = await renderFrame(visible, motion);
   if (pending.length > 64) pending = pending.slice(-64);
   if (visible && png) {
     saved++;
     await master.write(png);
     if (sc.keepFrames) fs.writeFileSync(path.join(framesDir, String(saved).padStart(6, "0") + ".png"), png);
-    meta.frames.push({ mouse: [Math.round(mouse.x * 10) / 10, Math.round(mouse.y * 10) / 10] });
+    meta.frames.push({ mouse: [Math.round(mouse.x * 10) / 10, Math.round(mouse.y * 10) / 10], ...(fresh ? {} : { same: 1 }) });
     if (saved % fps === 0) {
       const el = (Date.now() - tStart) / 1000;
       console.log(`${(saved / fps).toFixed(0)} s записано  (${(saved / el).toFixed(1)} кадр/с рендер)`);
@@ -529,5 +561,7 @@ await Promise.race([Promise.allSettled(pending), new Promise(r => setTimeout(r, 
 await master.close();
 fs.writeFileSync(path.join(outDir, "meta.json"), JSON.stringify(meta, null, 1));
 await browser.close();
+const per = k => (prof[k] / Math.max(1, frameNo)).toFixed(0);
+console.log(`время на кадр: сеть ${per("net")} мс, страница/видео ${per("advance")} мс, отрисовка ${per("frame")} мс; повторов ${prof.retries}, пропущено ${prof.missed}`);
 console.log(`готово: ${saved} кадров (${(saved / fps).toFixed(2)} с) за ${((Date.now() - tStart) / 1000).toFixed(1)} с, ожидание сети ${(netHeld / 1000).toFixed(1)} с`);
 for (const m of meta.marks) if (m.step !== "wait") console.log(`  ${m.t.toFixed(2)}s  ${m.step} ${m.note}`);
