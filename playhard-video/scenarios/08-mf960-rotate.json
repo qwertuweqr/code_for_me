@@ -1,0 +1,62 @@
+{
+ "_comment": "Поворот устройства: блок «Универсальное решение» на странице MF960 — при появлении на экране терминал плавно разворачивается (видео сайта 6.5 с, играет один раз).",
+ "url": "https://unitodi.ru/terminals/mf960",
+ "viewport": {
+  "width": 1440,
+  "height": 810
+ },
+ "scale": "auto",
+ "scrollMode": "native",
+ "maxDuration": 60,
+ "hide": [
+  ".cookie-consent"
+ ],
+ "tail": 0,
+ "steps": [
+  {
+   "do": "goto"
+  },
+  {
+   "do": "waitFor",
+   "preloader": true,
+   "timeout": 25
+  },
+  {
+   "do": "wait",
+   "sec": 0.8
+  },
+  {
+   "do": "scroll",
+   "toY": 1650,
+   "dur": 2.0,
+   "mode": "native",
+   "ease": "inOutCubic"
+  },
+  {
+   "do": "wait",
+   "sec": 2.0
+  },
+  {
+   "do": "record"
+  },
+  {
+   "do": "wait",
+   "sec": 0.4
+  },
+  {
+   "do": "scroll",
+   "toY": 2554,
+   "dur": 1.6,
+   "mode": "native",
+   "ease": "inOutCubic"
+  },
+  {
+   "do": "wait",
+   "sec": 8.0
+  }
+ ],
+ "compose": {
+  "cursor": false,
+  "posterAt": 3
+ }
+}

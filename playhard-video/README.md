@@ -26,6 +26,9 @@
 | `node make.mjs scenarios/01-home.json --draft` | быстрый черновик в 1× |
 | `node make.mjs scenarios/01-home.json` | чистовик |
 | `node make.mjs scenarios/01-home.json --compose` | пересобрать без пересъёмки, например после смены подложки |
+| `node make-all.mjs` | снять и собрать все ролики кейса (`scenarios/01…08`) |
+| `node make-all.mjs --compose` | пересобрать все после правки `scenarios/slot.json` (подложка, экран в слоте) |
+| `node pack.mjs` | собрать архив `out/unitodi-case-videos.zip`: слоты, чистые экраны, `index.html` для просмотра |
 
 Сценарии и все поля описаны в `CLAUDE.md`.
 

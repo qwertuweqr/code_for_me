@@ -1,0 +1,120 @@
+{
+ "_comment": "Схема «О компании»: наведение на узлы схемы, переключение вкладок 1 → 2 → 3 (четвёртая на сайте не анимирована — по просьбе Сабрины показываем только три).",
+ "url": "https://unitodi.ru/about/",
+ "viewport": {
+  "width": 1440,
+  "height": 810
+ },
+ "scale": "auto",
+ "scrollMode": "native",
+ "maxDuration": 60,
+ "mouseStart": [
+  640,
+  600
+ ],
+ "hide": [
+  ".cookie-consent"
+ ],
+ "steps": [
+  {
+   "do": "goto"
+  },
+  {
+   "do": "waitFor",
+   "preloader": true,
+   "timeout": 25
+  },
+  {
+   "do": "wait",
+   "sec": 0.8
+  },
+  {
+   "do": "scroll",
+   "to": "selector:.ab-about__slider",
+   "margin": 92,
+   "dur": 1.6,
+   "mode": "native",
+   "ease": "inOutCubic"
+  },
+  {
+   "do": "wait",
+   "sec": 1.6
+  },
+  {
+   "do": "record"
+  },
+  {
+   "do": "wait",
+   "sec": 0.6
+  },
+  {
+   "do": "hover",
+   "dwell": 0.55,
+   "targets": [
+    "selector:[data-abasca-parent='1'] [data-abasca-item='1']",
+    "selector:[data-abasca-parent='1'] [data-abasca-item='2']",
+    "selector:[data-abasca-parent='1'] [data-abasca-item='3']",
+    "selector:[data-abasca-parent='1'] [data-abasca-item='4']",
+    "selector:[data-abasca-parent='1'] [data-abasca-item='5']"
+   ]
+  },
+  {
+   "do": "move",
+   "to": "selector:[data-abas-btn='2']"
+  },
+  {
+   "do": "wait",
+   "sec": 0.3
+  },
+  {
+   "do": "click"
+  },
+  {
+   "do": "wait",
+   "sec": 1.6
+  },
+  {
+   "do": "hover",
+   "dwell": 0.5,
+   "targets": [
+    "selector:[data-abasca-parent='2'] [data-abasca-item='4']",
+    "selector:[data-abasca-parent='2'] [data-abasca-item='1']",
+    "selector:[data-abasca-parent='2'] [data-abasca-item='3']",
+    "selector:[data-abasca-parent='2'] [data-abasca-item='5']",
+    "selector:[data-abasca-parent='2'] [data-abasca-item='2']"
+   ]
+  },
+  {
+   "do": "move",
+   "to": "selector:[data-abas-btn='3']"
+  },
+  {
+   "do": "wait",
+   "sec": 0.3
+  },
+  {
+   "do": "click"
+  },
+  {
+   "do": "wait",
+   "sec": 1.8
+  },
+  {
+   "do": "hover",
+   "dwell": 0.5,
+   "targets": [
+    "selector:[data-abasca-parent='3'] [data-abasca-item='1']",
+    "selector:[data-abasca-parent='3'] [data-abasca-item='2']",
+    "selector:[data-abasca-parent='3'] [data-abasca-item='3']",
+    "selector:[data-abasca-parent='3'] [data-abasca-item='4']"
+   ]
+  },
+  {
+   "do": "wait",
+   "sec": 1.0
+  }
+ ],
+ "compose": {
+  "cursor": true
+ }
+}

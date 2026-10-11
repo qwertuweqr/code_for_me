@@ -22,7 +22,13 @@ const name = (sc.name ?? path.basename(scPath, ".json")) + (a.draft ? "-draft" :
 const out = path.join(ROOT, "out", name);
 fs.mkdirSync(out, { recursive: true });
 
-const c = { size: "1200x675", scale: 2, ...(sc.compose ?? {}) };
+// Slot settings shared by all videos (background, screen rect) live in
+// scenarios/slot.json; a scenario's own "compose" overrides them.
+const slotFile = path.join(path.dirname(scPath), "slot.json");
+const slot = fs.existsSync(slotFile) ? JSON.parse(fs.readFileSync(slotFile, "utf8")) : {};
+const c = { size: "1200x600", scale: 2, ...slot, ...(sc.compose ?? {}) };
+// Second version: the bare screen at 1920x1080, for placing into another frame.
+const screen = c.screen === false ? null : { size: `${sc.viewport?.width ?? 1440}x${sc.viewport?.height ?? 810}`, scale: 1920 / (sc.viewport?.width ?? 1440) };
 const vw = sc.viewport?.width ?? 1440;
 const [sw, sh] = nums(c.size);
 const rect = c.rect ? nums(c.rect) : [0, 0, sw, sh];
@@ -34,7 +40,7 @@ if (a.draft) {
 }
 // Capture density: enough device pixels for the screen at the output scale.
 if (sc.scale === undefined || sc.scale === "auto") {
-  const need = (rect[2] * c.scale) / (crop ? crop[2] : vw);
+  const need = Math.max((rect[2] * c.scale) / (crop ? crop[2] : vw), screen && !crop ? screen.scale : 0);
   sc.scale = Math.min(3, Math.max(1, Math.ceil(need * 4) / 4));
 }
 const resolved = path.join(out, "scenario.json");
@@ -51,21 +57,27 @@ if (!a.compose) {
   await node("capture.mjs", [resolved, out]);
 }
 
-const args = ["--capture", out, "--out", path.join(out, name), "--size", c.size, "--scale", String(c.scale)];
-if (c.bg) args.push("--bg", path.resolve(path.dirname(scPath), c.bg));
-if (c.bgColor) args.push("--bg-color", c.bgColor);
-if (c.rect) args.push("--rect", rect.join(","));
-if (c.radius) args.push("--radius", String(c.radius));
-if (c.crop) args.push("--crop", crop.join(","));
-if (c.cursor) args.push("--cursor");
-if (c.cursorSize) args.push("--cursor-size", String(c.cursorSize));
-if (c.clean) args.push("--clean");
-if (c.crfWebm) args.push("--crf-webm", String(c.crfWebm));
-if (c.crfMp4) args.push("--crf-mp4", String(c.crfMp4));
-if (c.posterAt !== undefined) args.push("--poster-at", String(c.posterAt));
-if (a.draft) args.push("--vp9-speed", "5");
-console.log(`сборка ${name}: ${c.size} @${c.scale}x${c.bg ? " на подложке " + c.bg : ""}`);
-await node("compose.mjs", args);
+function composeArgs(o, outName, slotMode) {
+  const args = ["--capture", out, "--out", path.join(out, outName), "--size", o.size, "--scale", String(o.scale)];
+  if (slotMode && o.bg) args.push("--bg", path.resolve(path.dirname(scPath), o.bg));
+  if (slotMode && o.bgColor) args.push("--bg-color", o.bgColor);
+  if (slotMode && o.rect) args.push("--rect", nums(o.rect).join(","));
+  if (slotMode && o.radius) args.push("--radius", String(o.radius));
+  if (c.crop) args.push("--crop", crop.join(","));
+  if (c.cursor) args.push("--cursor");
+  if (c.cursorSize) args.push("--cursor-size", String(c.cursorSize));
+  if (c.crfWebm) args.push("--crf-webm", String(c.crfWebm));
+  if (c.crfMp4) args.push("--crf-mp4", String(c.crfMp4));
+  if (c.posterAt !== undefined) args.push("--poster-at", String(c.posterAt));
+  if (a.draft) args.push("--vp9-speed", "5");
+  return args;
+}
+console.log(`сборка ${name}: слот ${c.size} @${c.scale}x${c.bg ? " на подложке " + c.bg : c.bgColor ? " на фоне " + c.bgColor : ""}`);
+await node("compose.mjs", composeArgs(c, name, true));
+if (screen && !a.draft) {
+  console.log(`сборка ${name}-screen: чистый экран 1920x1080`);
+  await node("compose.mjs", composeArgs({ ...screen }, name + "-screen", false));
+}
 
 // Preview page: the video at slot size, as it will sit on the case page.
 const meta = JSON.parse(fs.readFileSync(path.join(out, "meta.json"), "utf8"));
@@ -90,6 +102,10 @@ fs.writeFileSync(path.join(out, "preview.html"), `<!doctype html>
 </video>
 <div class="row"><span><b>${meta.duration.toFixed(1)} с</b> · ${meta.fps} fps · ${meta.frames.length} кадров</span>
 <span>WebM <b>${size(name + ".webm")}</b></span><span>MP4 <b>${size(name + ".mp4")}</b></span><span>постер <b>${size(name + "-poster.jpg")}</b></span></div>
+${fs.existsSync(path.join(out, name + "-screen.webm")) ? `<p style="color:var(--muted)">Чистый экран 1920×1080 (WebM ${size(name + "-screen.webm")}, MP4 ${size(name + "-screen.mp4")}):</p>
+<video autoplay muted loop playsinline preload="metadata" poster="${name}-screen-poster.jpg" style="aspect-ratio:16/9;margin-bottom:28px">
+  <source src="${name}-screen.webm" type="video/webm"><source src="${name}-screen.mp4" type="video/mp4">
+</video>` : ""}
 <p style="color:var(--muted)">Вставка на сайт:</p>
 <pre style="background:var(--card);padding:14px;border-radius:8px;overflow:auto">&lt;video autoplay muted loop playsinline preload="metadata" poster="${name}-poster.jpg"&gt;
   &lt;source src="${name}.webm" type="video/webm"&gt;

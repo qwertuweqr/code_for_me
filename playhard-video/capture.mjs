@@ -447,6 +447,12 @@ async function begin(s, t) {
       s.end = t + 0.05;
       break;
     }
+    case "record":
+      // Start saving frames here (e.g. once the page has settled on a block).
+      recording = true;
+      meta.startAt = t;
+      s.finished = true;
+      break;
     case "eval":
       await evalJS(s.js);
       s.finished = true;
@@ -511,9 +517,8 @@ async function tick(t) {
 let lastScrollEnd = -1e9;
 
 // ---------------------------------------------------------------------------
-// Recording loop. Steps use seconds from navigation start. Frames before
-// `startAt` are rendered (the page keeps running) but not saved. Recording
-// stops `tail` seconds after the last step, at `duration` or at `maxDuration`.
+// Recording loop. Step times are seconds from navigation start; frames that
+// are not saved are still rendered, so the page keeps running.
 // ---------------------------------------------------------------------------
 
 const ffmpeg = await findFfmpeg();
@@ -525,21 +530,26 @@ const master = sink(ffmpeg, [
   "-g", String(fps * 2), path.join(outDir, "screen.mp4"),
 ]);
 
+// Frames are saved from `startAt` seconds, or from a "record" step if the
+// scenario has one. Recording stops after `duration` saved seconds, `tail`
+// seconds after the last step, or at `maxDuration` seconds of page time.
 const startAt = sc.startAt ?? 0;
 const tail = sc.tail ?? 0.6;
-const maxFrames = Math.round((sc.duration ?? sc.maxDuration ?? 60) * fps);
+let recording = !queue.some(st => st.do === "record");
+const wantSaved = sc.duration ? Math.round(sc.duration * fps) : Infinity;
 const first = Math.round(startAt * fps);
+const maxTotal = first + Math.round((sc.maxDuration ?? 60) * fps);
 const tStart = Date.now();
 let doneAt = null;
 let saved = 0;
 
-for (let i = 0; i < first + maxFrames; i++) {
+for (let i = 0; i < maxTotal && saved < wantSaved; i++) {
   const t = i / fps;
   await tick(t);
   const allDone = next >= queue.length && running.length === 0;
   if (allDone && doneAt === null) doneAt = t;
-  if (doneAt !== null && !sc.duration && t >= doneAt + tail) break;
-  const visible = i >= first;
+  if (doneAt !== null && wantSaved === Infinity && t >= doneAt + tail) break;
+  const visible = recording && i >= first;
   const motion = running.some(st => st.do === "scroll") || t - lastScrollEnd < 0.8;
   const { png, fresh } = await renderFrame(visible, motion);
   if (pending.length > 64) pending = pending.slice(-64);
@@ -550,7 +560,7 @@ for (let i = 0; i < first + maxFrames; i++) {
     meta.frames.push({ mouse: [Math.round(mouse.x * 10) / 10, Math.round(mouse.y * 10) / 10], ...(fresh ? {} : { same: 1 }) });
     if (saved % fps === 0) {
       const el = (Date.now() - tStart) / 1000;
-      console.log(`${(saved / fps).toFixed(0)} s записано  (${(saved / el).toFixed(1)} кадр/с рендер)`);
+      console.log(`${(saved / fps).toFixed(0)} s записано  (${(i / el).toFixed(1)} кадр/с рендер)`);
     }
   }
 }

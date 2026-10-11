@@ -1,0 +1,17 @@
+{
+  "_comment": "3D и анимация — первый экран главной: вращающиеся терминалы (фоновое видео сайта, петля 16.03 с). Бесшовная петля, без курсора.",
+  "url": "https://unitodi.ru/",
+  "viewport": { "width": 1440, "height": 810 },
+  "scale": "auto",
+  "duration": 16.033,
+  "maxDuration": 60,
+  "hide": [".cookie-consent"],
+  "steps": [
+    { "do": "goto" },
+    { "do": "waitFor", "preloader": true, "timeout": 25 },
+    { "do": "wait", "sec": 3.5 },
+    { "do": "record" },
+    { "do": "wait", "sec": 20 }
+  ],
+  "compose": { "cursor": false, "posterAt": 0.5 }
+}

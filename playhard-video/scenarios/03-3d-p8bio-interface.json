@@ -1,0 +1,51 @@
+{
+ "_comment": "3D и анимация — блок «Индивидуальный дизайн и анимация интерфейса» с P8 BIO (видео сайта, петля 16.8 с). Бесшовная петля, без курсора.",
+ "url": "https://unitodi.ru/",
+ "viewport": {
+  "width": 1440,
+  "height": 810
+ },
+ "scale": "auto",
+ "scrollMode": "native",
+ "duration": 16.8,
+ "maxDuration": 70,
+ "hide": [
+  ".cookie-consent"
+ ],
+ "steps": [
+  {
+   "do": "goto"
+  },
+  {
+   "do": "waitFor",
+   "preloader": true,
+   "timeout": 25
+  },
+  {
+   "do": "wait",
+   "sec": 0.8
+  },
+  {
+   "do": "scroll",
+   "toY": 2905,
+   "dur": 3.0,
+   "mode": "native",
+   "ease": "inOutCubic"
+  },
+  {
+   "do": "wait",
+   "sec": 3.0
+  },
+  {
+   "do": "record"
+  },
+  {
+   "do": "wait",
+   "sec": 20
+  }
+ ],
+ "compose": {
+  "cursor": false,
+  "posterAt": 0.5
+ }
+}

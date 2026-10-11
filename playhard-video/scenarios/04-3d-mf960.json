@@ -1,0 +1,17 @@
+{
+  "_comment": "3D и анимация — терминал MF960, первый экран страницы продукта (видео сайта, петля 7 с). Бесшовная петля, без курсора.",
+  "url": "https://unitodi.ru/terminals/mf960",
+  "viewport": { "width": 1440, "height": 810 },
+  "scale": "auto",
+  "duration": 7.0,
+  "maxDuration": 50,
+  "hide": [".cookie-consent"],
+  "steps": [
+    { "do": "goto" },
+    { "do": "waitFor", "preloader": true, "timeout": 25 },
+    { "do": "wait", "sec": 3.5 },
+    { "do": "record" },
+    { "do": "wait", "sec": 10 }
+  ],
+  "compose": { "cursor": false, "posterAt": 0.5 }
+}

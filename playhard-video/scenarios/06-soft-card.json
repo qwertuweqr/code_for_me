@@ -1,0 +1,30 @@
+{
+  "_comment": "Страница ПО: карточка uniTodi на первом экране наклоняется в 3D за курсором. Курсор начинает и заканчивает в одной точке — петля без шва.",
+  "url": "https://unitodi.ru/softwares/",
+  "viewport": { "width": 1440, "height": 810 },
+  "scale": "auto",
+  "maxDuration": 50,
+  "mouseStart": [700, 430],
+  "tail": 0,
+  "hide": [".cookie-consent"],
+  "steps": [
+    { "do": "goto" },
+    { "do": "waitFor", "preloader": true, "timeout": 25 },
+    { "do": "wait", "sec": 1.5 },
+    { "do": "move", "to": [700, 430], "dur": 0.3 },
+    { "do": "wait", "sec": 1.5 },
+    { "do": "record" },
+    { "do": "wait", "sec": 0.3 },
+    { "do": "move", "to": [260, 330], "dur": 1.5, "ease": "inOutSine" },
+    { "do": "wait", "sec": 0.3 },
+    { "do": "move", "to": [560, 640], "dur": 1.4, "ease": "inOutSine" },
+    { "do": "wait", "sec": 0.3 },
+    { "do": "move", "to": [1150, 320], "dur": 1.7, "ease": "inOutSine" },
+    { "do": "wait", "sec": 0.3 },
+    { "do": "move", "to": [860, 590], "dur": 1.3, "ease": "inOutSine" },
+    { "do": "wait", "sec": 0.2 },
+    { "do": "move", "to": [700, 430], "dur": 1.1, "ease": "inOutSine" },
+    { "do": "wait", "sec": 0.9 }
+  ],
+  "compose": { "cursor": true }
+}

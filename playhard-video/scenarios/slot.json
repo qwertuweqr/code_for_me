@@ -1,0 +1,8 @@
+{
+  "_comment": "Слот кейса 1200×600 по образцу кейсов RhinOIL / Flat Interior: фирменный фон unitodi (--brand-primary #7b5bdd), экран сайта по центру со скруглением. Когда будет подложка Сабрины: bg — PNG @2x, rect — экран в слоте (x,y,w,h в px макета), radius — и `node make.mjs <сценарий> --compose` для каждого ролика.",
+  "size": "1200x600",
+  "scale": 2,
+  "bgColor": "#7b5bdd",
+  "rect": "192,70.5,816,459",
+  "radius": 12
+}

@@ -1,0 +1,51 @@
+{
+ "_comment": "Блок «Брендирование оборудования под фирменный стиль клиента» на главной: карусель цветных терминалов (видео сайта, петля 11 с). Бесшовная петля, без курсора.",
+ "url": "https://unitodi.ru/",
+ "viewport": {
+  "width": 1440,
+  "height": 810
+ },
+ "scale": "auto",
+ "scrollMode": "native",
+ "duration": 11.0,
+ "maxDuration": 70,
+ "hide": [
+  ".cookie-consent"
+ ],
+ "steps": [
+  {
+   "do": "goto"
+  },
+  {
+   "do": "waitFor",
+   "preloader": true,
+   "timeout": 25
+  },
+  {
+   "do": "wait",
+   "sec": 0.8
+  },
+  {
+   "do": "scroll",
+   "toY": 4472,
+   "dur": 3.6,
+   "mode": "native",
+   "ease": "inOutCubic"
+  },
+  {
+   "do": "wait",
+   "sec": 3.0
+  },
+  {
+   "do": "record"
+  },
+  {
+   "do": "wait",
+   "sec": 14
+  }
+ ],
+ "compose": {
+  "cursor": false,
+  "posterAt": 0.5
+ }
+}
