@@ -1,0 +1,29 @@
+{
+  "_comment": "Ролик 1 — главная unitodi.ru, ~30 с: загрузка и прелоадер → первый экран → меню → «Программное обеспечение» → немного интерактива → скролл главной. Шаги подстраиваются после `npm run probe`.",
+  "url": "https://unitodi.ru/",
+  "viewport": { "width": 1440, "height": 810 },
+  "scale": "auto",
+  "fps": 60,
+  "scrollMode": "wheel",
+  "maxDuration": 40,
+  "mouseStart": [980, 620],
+  "hide": [],
+  "steps": [
+    { "do": "goto" },
+    { "do": "waitFor", "preloader": true, "timeout": 20 },
+    { "do": "wait", "sec": 1.6 },
+    { "do": "hover", "targets": "nav", "dwell": 0.5, "max": 6 },
+    { "do": "move", "to": "text:Программное обеспечение" },
+    { "do": "wait", "sec": 1.8 },
+    { "do": "move", "to": [1000, 560], "dur": 1.0 },
+    { "do": "move", "to": [700, 480], "dur": 1.2, "ease": "inOutSine" },
+    { "do": "tour", "speed": 800, "dwell": 1.0, "maxDur": 2.6 },
+    { "do": "wait", "sec": 1.0 }
+  ],
+  "compose": {
+    "_comment": "Пока нет подложки Сабрины — чистый экран 16:9 в 2400x1350. С подложкой: bg, size 1200x600, rect x,y,w,h, radius.",
+    "size": "1200x675",
+    "scale": 2,
+    "cursor": true
+  }
+}

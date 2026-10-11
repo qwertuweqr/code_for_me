@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Test site — capture check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg: #0d0f14; --fg: #f2f3f5; --muted: #8b90a0; --accent: #4f7cff; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: var(--bg); color: var(--fg); font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
+  body { overflow-x: hidden; }
+  .preloader { position: fixed; inset: 0; z-index: 50; background: #07080b; display: grid; place-items: center;
+    transition: opacity .6s ease, transform .8s cubic-bezier(.7,0,.2,1); }
+  .preloader.done { opacity: 0; transform: translateY(-100%); }
+  .preloader .count { font-size: 96px; font-weight: 700; letter-spacing: -0.04em; }
+  .preloader .bar { position: absolute; bottom: 80px; left: 20%; right: 20%; height: 2px; background: #1c1f28; }
+  .preloader .bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  header { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between;
+    align-items: center; padding: 26px 56px; }
+  .logo { font-weight: 800; letter-spacing: .08em; }
+  nav { display: flex; gap: 36px; }
+  nav a { color: var(--muted); text-decoration: none; position: relative; padding: 6px 0; transition: color .3s; }
+  nav a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px; background: var(--fg);
+    transition: right .35s cubic-bezier(.6,0,.2,1); }
+  nav a:hover { color: var(--fg); }
+  nav a:hover::after { right: 0; }
+  .drop { position: absolute; top: 64px; right: 56px; width: 360px; padding: 18px; border-radius: 16px; background: #161a24;
+    opacity: 0; transform: translateY(-10px); transition: .35s cubic-bezier(.6,0,.2,1); pointer-events: none; }
+  nav a.soft:hover ~ .drop, .drop:hover { opacity: 1; transform: none; }
+  .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 56px; }
+  .hero h1 { font-size: 88px; line-height: .95; letter-spacing: -0.04em; max-width: 1000px; }
+  .hero h1 span { display: inline-block; opacity: 0; transform: translateY(40px); }
+  body.ready .hero h1 span { animation: rise .9s cubic-bezier(.2,.7,.1,1) forwards; }
+  body.ready .hero h1 span:nth-child(2) { animation-delay: .08s; }
+  body.ready .hero h1 span:nth-child(3) { animation-delay: .16s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  section { min-height: 90vh; padding: 120px 56px; border-top: 1px solid #1a1d26; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  section h2 { font-size: 56px; letter-spacing: -0.03em; }
+  section p { color: var(--muted); font-size: 20px; line-height: 1.5; margin-top: 18px; }
+  .stage { perspective: 1200px; display: grid; place-items: center; height: 520px; }
+  .card { width: 320px; height: 420px; border-radius: 24px; background: linear-gradient(140deg, #2b4fd8, #7a3cf0 60%, #ff6b8b);
+    transform-style: preserve-3d; animation: spin 8s linear infinite; box-shadow: 0 40px 80px rgba(0,0,0,.5); }
+  @keyframes spin { from { transform: rotateY(-25deg) rotateX(8deg); } 50% { transform: rotateY(25deg) rotateX(-6deg); } to { transform: rotateY(-25deg) rotateX(8deg); } }
+  canvas { width: 100%; height: 520px; border-radius: 24px; background: #10131b; }
+</style>
+</head>
+<body>
+<div class="preloader" id="pre"><div class="count" id="count">0</div><div class="bar"><i id="bar"></i></div></div>
+<header>
+  <div class="logo">UNIT·TEST</div>
+  <nav>
+    <a href="#">Решения</a><a href="#" class="soft">Программное обеспечение</a><a href="#">О компании</a><a href="#">Контакты</a>
+    <div class="drop">Касса, терминал, облако — подменю с плавным появлением</div>
+  </nav>
+</header>
+<div class="hero"><h1><span>Инфраструктура</span> <span>для розницы</span> <span>нового поколения</span></h1></div>
+<section><div><h2>3D и анимация</h2><p>Карточка вращается CSS-анимацией: проверка, что анимации компоновщика снимаются ровно.</p></div>
+  <div class="stage"><div class="card"></div></div></section>
+<section><div><h2>Схема</h2><p>Canvas-анимация на performance.now() — как three.js Clock или GSAP.</p></div><canvas id="cv"></canvas></section>
+<section><div><h2>Видео в блоке</h2><p>&lt;video autoplay loop&gt; идёт синхронно с записью; картинка справа отдаётся сервером с задержкой 1.5 с.</p></div>
+  <div style="display:grid;gap:24px"><video src="clip.webm" autoplay muted loop playsinline style="width:100%;border-radius:20px"></video>
+  <img src="/slow/photo.jpg" loading="lazy" style="width:100%;height:220px;object-fit:cover;border-radius:20px"></div></section>
+<section><div><h2>Контакты</h2><p>Конец страницы.</p></div><div></div></section>
+<script>
+  // Preloader: counter driven by rAF time, finished by setTimeout (like real sites).
+  const count = document.getElementById('count'), bar = document.getElementById('bar');
+  const t0 = performance.now();
+  (function tick() {
+    const p = Math.min(1, (performance.now() - t0) / 1600);
+    count.textContent = Math.round(p * 100);
+    bar.style.width = (p * 100) + '%';
+    if (p < 1) requestAnimationFrame(tick);
+  })();
+  setTimeout(() => { document.getElementById('pre').classList.add('done'); document.body.classList.add('ready'); }, 1800);
+
+  // Smooth scroll (Lenis-like): wheel sets a target, rAF eases toward it.
+  let target = 0, current = 0;
+  window.addEventListener('wheel', e => { e.preventDefault(); target = Math.max(0, Math.min(document.body.scrollHeight - innerHeight, target + e.deltaY)); }, { passive: false });
+  (function raf(t) { current += (target - current) * 0.1; if (Math.abs(target - current) < 0.1) current = target; window.scrollTo(0, current); requestAnimationFrame(raf); })();
+
+  // Canvas animation using performance.now()
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  function draw() {
+    const w = cv.width = cv.clientWidth * devicePixelRatio, h = cv.height = cv.clientHeight * devicePixelRatio;
+    const t = performance.now() / 1000;
+    ctx.clearRect(0, 0, w, h);
+    for (let i = 0; i < 6; i++) {
+      const x = w * (0.15 + i * 0.14), y = h * 0.5 + Math.sin(t * 2 + i) * h * 0.25;
+      ctx.beginPath(); ctx.arc(x, y, 18 * devicePixelRatio, 0, Math.PI * 2);
+      ctx.fillStyle = `hsl(${220 + i * 18}, 80%, 62%)`; ctx.fill();
+      if (i) { ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 2 * devicePixelRatio; ctx.beginPath();
+        ctx.moveTo(w * (0.15 + (i - 1) * 0.14), h * 0.5 + Math.sin(t * 2 + i - 1) * h * 0.25); ctx.lineTo(x, y); ctx.stroke(); }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>

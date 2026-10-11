@@ -1,0 +1,66 @@
+{
+ "_comment": "Самопроверка набора на тестовой странице (npm test): прелоадер, меню, видео, медленная картинка, скролл с инерцией.",
+ "url": "http://localhost:8765/",
+ "viewport": {
+  "width": 1440,
+  "height": 810
+ },
+ "scale": "auto",
+ "maxDuration": 40,
+ "mouseStart": [
+  760,
+  560
+ ],
+ "steps": [
+  {
+   "do": "goto"
+  },
+  {
+   "do": "waitFor",
+   "preloader": true,
+   "timeout": 12
+  },
+  {
+   "do": "wait",
+   "sec": 0.8
+  },
+  {
+   "do": "hover",
+   "targets": "nav",
+   "dwell": 0.4
+  },
+  {
+   "do": "move",
+   "to": "text:Программное обеспечение"
+  },
+  {
+   "do": "wait",
+   "sec": 1.0
+  },
+  {
+   "do": "move",
+   "to": [
+    900,
+    560
+   ],
+   "dur": 0.8
+  },
+  {
+   "do": "tour",
+   "speed": 900,
+   "dwell": 1.2
+  },
+  {
+   "do": "wait",
+   "sec": 0.5
+  }
+ ],
+ "compose": {
+  "bgColor": "#20232c",
+  "size": "1200x600",
+  "scale": 2,
+  "rect": "140,41,920,517.5",
+  "radius": 14,
+  "cursor": true
+ }
+}
