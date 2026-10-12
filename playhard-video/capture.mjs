@@ -171,6 +171,8 @@ const browser = await puppeteer.launch({
     "--font-render-hinting=none",
     ...(sc.gpu ? [] : ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]),
     `--window-size=${vw},${vh}`,
+    // Begin-frame screenshots ignore the emulated deviceScaleFactor and come at 1x without this flag.
+    ...(scale !== 1 ? [`--force-device-scale-factor=${scale}`] : []),
     ...(sc.lang ? [`--lang=${sc.lang}`] : ["--lang=ru-RU"]),
     // Chromium refuses to start as root with its sandbox (containers, CI).
     ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []),
@@ -576,6 +578,10 @@ for (let i = 0; i < maxTotal && saved < wantSaved; i++) {
   const { png, fresh } = await renderFrame(visible, motion);
   if (pending.length > 64) pending = pending.slice(-64);
   if (visible && png) {
+    if (!saved) {  // PNG header: width and height at bytes 16 and 20
+      const w = png.readUInt32BE(16), h = png.readUInt32BE(20);
+      if (w !== pxW || h !== pxH) throw new Error(`кадр ${w}x${h}, ожидалось ${pxW}x${pxH} (плотность ${scale}x не применилась)`);
+    }
     saved++;
     await master.write(png);
     if (sc.keepFrames) fs.writeFileSync(path.join(framesDir, String(saved).padStart(6, "0") + ".png"), png);
