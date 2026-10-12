@@ -28,6 +28,7 @@
 | `node make.mjs scenarios/01-home.json --compose` | пересобрать без пересъёмки, например после смены подложки |
 | `node make-all.mjs` | снять и собрать все ролики кейса (`scenarios/01…08`) |
 | `node make-all.mjs --compose` | пересобрать все после правки `scenarios/slot.json` (подложка, экран в слоте) |
+| `python3 insert-screen.py put --geom screens/card-1.json --base 1--desktop.png --screen Idle.png --out out/en-hover/1--desktop-hover` | вставить экран в устройство карточки (EN Idle), см. CLAUDE.md, ролик 9 |
 | `node pack.mjs` | собрать архив `out/unitodi-case-videos.zip`: слоты, чистые экраны, `index.html` для просмотра |
 
 Сценарии и все поля описаны в `CLAUDE.md`.

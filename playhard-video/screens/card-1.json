@@ -1,0 +1,35 @@
+{
+ "source_size": [
+  890,
+  1330
+ ],
+ "corners": [
+  [
+   340.94,
+   47.156
+  ],
+  [
+   687.398,
+   19.587
+  ],
+  [
+   458.204,
+   967.002
+  ],
+  [
+   93.783,
+   948.368
+  ]
+ ],
+ "flat": [
+  1000.0,
+  2679.8098247172593
+ ],
+ "aspect_wh": 0.3731608081948531,
+ "radius_flat": 136.0,
+ "holes_flat": [],
+ "iou": 0.9948158779803347,
+ "_note": "corners TL TR BR BL in source pixels; flat space is FW x FH; radius and holes in flat units",
+ "_device": "POS Terminals: terminal on a stand (products-1/1--desktop.png)",
+ "_learned_from": "unitodi.ru/local/templates/unitodi/assets/images/products-1/1--desktop.png vs 1--desktop-hover.png (RU), 2026-10-12"
+}

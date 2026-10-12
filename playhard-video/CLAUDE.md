@@ -116,8 +116,32 @@
 | `06-soft-card.json` | страница ПО: карточка наклоняется за курсором | да | петля ~9 с |
 | `07-branding.json` | «Брендирование оборудования»: карусель терминалов | нет | петля 11 с |
 | `08-mf960-rotate.json` | MF960 «Универсальное решение»: разворот устройства | нет | ~10 с |
+| `09-cards-en.json` | EN-главная, «What we do»: наведение на карточки, экран устройства меняется на английский Idle | да | петля ~11 с |
 
 Все ролики сразу: `node make-all.mjs`, итоговый архив: `node pack.mjs`.
+
+## Ролик 9 — EN-карточки «What we do» и экран Idle
+
+Задача Сабрины: на EN-версии при наведении на карточки «POS Terminals» и «Software» экран устройства должен
+плавно меняться на английский экран (`Idle.png`, «Shopping that makes you smile») — как на RU, где стоит
+«Покупки, которые радуют». Сейчас EN берёт те же hover-картинки, что и RU.
+
+1. **Картинки.** `insert-screen.py` (Python 3, `pip install numpy pillow imagequant`) вставляет экран в устройство
+   по геометрии из `screens/card-1.json` (стойка) и `screens/card-2.json` (ручной терминал). Геометрия снята с пары
+   RU-картинок сайта: четыре угла экрана, скругление и отверстие камеры. Пиксели устройства вне экрана не меняются,
+   размер и положение те же, что у обычной картинки, поэтому при наведении ничего не сдвигается.
+   ```bash
+   B=https://unitodi.ru/local/templates/unitodi/assets/images/products-1
+   curl -o out/1--desktop.png $B/1--desktop.png && curl -o out/2--desktop.png $B/2--desktop.png
+   python3 insert-screen.py put --geom screens/card-1.json --base out/1--desktop.png --screen Idle.png --out out/en-hover/1--desktop-hover
+   python3 insert-screen.py put --geom screens/card-2.json --base out/2--desktop.png --screen Idle.png --out out/en-hover/2--desktop-hover
+   ```
+   Выход: `.png` (256 цветов), `.webp`, `.avif` — 890×1330, как на сайте. Для Figma — исходники 1338×2000 и `--master`
+   (один полноцветный PNG). Экран ставится «по четырём углам», как сделан RU; `--cover` обрезает его по пропорциям.
+2. **Видео.** `node make.mjs scenarios/09-cards-en.json` — сценарий подменяет hover-картинки сайта файлами из
+   `out/en-hover/` (`replace`), так что ролик снимается с живой EN-страницы до выкладки картинок на прод.
+3. **Проверка.** Кадры наведения (`ffmpeg -ss … -frames:v 1`), `freezedetect` только на паузах, края экрана в 2–3× увеличении.
+   `insert-screen.py check` прогоняет RU-экран туда и обратно: средняя ошибка внутри экрана ≈ 1/255, вне экрана — 0.
 
 ## Сборка на подложке
 
@@ -171,6 +195,7 @@
 | `startAt` | секунды в начале, которые не сохранять |
 | `duration`, `maxDuration`, `tail` | длина записи |
 | `hide`, `css` | что скрыть или переопределить на странице |
+| `replace` | подменить файлы сайта своими: `{"часть URL": "файл"}` (путь от папки сценария), например новую картинку до выкладки на прод |
 | `block`, `blockDefault` | какие запросы блокировать (аналитика и чаты блокируются по умолчанию) |
 | `netWait`, `syncVideo`, `gpu`, `headers`, `cookies` | ожидание сети, видео на странице, GPU, доступ к закрытым страницам |
 

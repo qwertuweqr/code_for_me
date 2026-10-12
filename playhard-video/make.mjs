@@ -43,6 +43,10 @@ if (sc.scale === undefined || sc.scale === "auto") {
   const need = Math.max((rect[2] * c.scale) / (crop ? crop[2] : vw), screen && !crop ? screen.scale : 0);
   sc.scale = Math.min(3, Math.max(1, Math.ceil(need * 4) / 4));
 }
+// Files in "replace" are given from the scenario folder; the resolved copy lives in out/<name>/.
+if (sc.replace) {
+  sc.replace = Object.fromEntries(Object.entries(sc.replace).map(([part, f]) => [part, path.resolve(path.dirname(scPath), f)]));
+}
 const resolved = path.join(out, "scenario.json");
 fs.writeFileSync(resolved, JSON.stringify(sc, null, 1));
 

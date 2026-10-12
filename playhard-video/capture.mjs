@@ -189,6 +189,28 @@ await cdp.send("Runtime.enable");
 await cdp.send("Network.enable");
 if (block.length) await cdp.send("Network.setBlockedURLs", { urls: block });
 if (sc.headers) await cdp.send("Network.setExtraHTTPHeaders", { headers: sc.headers });
+
+// Local files instead of page assets: {"part of the URL": "file"} (paths from the scenario folder),
+// e.g. a new hover image that is not on the site yet.
+const MIME = { png: "image/png", webp: "image/webp", avif: "image/avif", jpg: "image/jpeg", jpeg: "image/jpeg",
+  svg: "image/svg+xml", gif: "image/gif", mp4: "video/mp4", webm: "video/webm", css: "text/css", js: "text/javascript" };
+const replace = Object.entries(sc.replace ?? {}).map(([part, file]) => [part, path.resolve(path.dirname(scenarioPath), file)]);
+for (const [, file] of replace) if (!fs.existsSync(file)) throw new Error(`replace: no file ${file}`);
+if (replace.length) {
+  await cdp.send("Fetch.enable", { patterns: replace.map(([part]) => ({ urlPattern: `*${part}*` })) });
+  cdp.on("Fetch.requestPaused", e => {
+    const hit = replace.find(([part]) => e.request.url.includes(part));
+    if (!hit) return cdp.send("Fetch.continueRequest", { requestId: e.requestId }).catch(() => {});
+    const type = MIME[path.extname(hit[1]).slice(1).toLowerCase()] ?? "application/octet-stream";
+    cdp.send("Fetch.fulfillRequest", {
+      requestId: e.requestId, responseCode: 200,
+      responseHeaders: [{ name: "Content-Type", value: type }, { name: "Cache-Control", value: "no-store" },
+        { name: "Access-Control-Allow-Origin", value: "*" }],
+      body: fs.readFileSync(hit[1]).toString("base64"),
+    }).catch(err => console.warn("replace:", err.message));
+  });
+  console.log("replace:", replace.map(([part, file]) => `${part} -> ${path.basename(file)}`).join(", "));
+}
 if (sc.cookies) await cdp.send("Network.setCookies", { cookies: sc.cookies });
 await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: TIME_SHIM });
 cdp.on("Runtime.exceptionThrown", e => console.warn("page error:", e.exceptionDetails?.exception?.description?.split("\n")[0]));

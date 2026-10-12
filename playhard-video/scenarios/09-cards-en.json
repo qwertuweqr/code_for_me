@@ -1,0 +1,38 @@
+{
+  "_comment": "EN-главная, блок «What we do»: при наведении на карточку экран устройства плавно меняется на английский Idle-экран (как на RU-версии). Hover-картинки сайта подменяются нашими (insert-screen.py → out/en-hover/), пока их нет на проде. Курсор начинает и заканчивает под карточками, вне кадра — петля без шва.",
+  "url": "https://unitodi.ru/en/",
+  "viewport": { "width": 1440, "height": 810 },
+  "scale": "auto",
+  "maxDuration": 60,
+  "mouseStart": [720, 760],
+  "tail": 0,
+  "hide": [".cookie-consent"],
+  "replace": {
+    "products-1/1--desktop-hover.avif": "../out/en-hover/1--desktop-hover.avif",
+    "products-1/1--desktop-hover.webp": "../out/en-hover/1--desktop-hover.webp",
+    "products-1/1--desktop-hover.png": "../out/en-hover/1--desktop-hover.png",
+    "products-1/2--desktop-hover.avif": "../out/en-hover/2--desktop-hover.avif",
+    "products-1/2--desktop-hover.webp": "../out/en-hover/2--desktop-hover.webp",
+    "products-1/2--desktop-hover.png": "../out/en-hover/2--desktop-hover.png"
+  },
+  "steps": [
+    { "do": "goto" },
+    { "do": "waitFor", "preloader": true, "timeout": 25 },
+    { "do": "wait", "sec": 1.0 },
+    { "do": "scroll", "toY": 2170, "mode": "native", "dur": 1.2 },
+    { "do": "wait", "sec": 2.0 },
+    { "do": "record" },
+    { "do": "wait", "sec": 0.4 },
+    { "do": "move", "to": [330, 430], "dur": 0.9, "ease": "inOutSine" },
+    { "do": "wait", "sec": 1.4 },
+    { "do": "move", "to": [1000, 410], "dur": 0.9, "ease": "inOutSine" },
+    { "do": "wait", "sec": 1.4 },
+    { "do": "move", "to": [350, 450], "dur": 0.9, "ease": "inOutSine" },
+    { "do": "wait", "sec": 1.4 },
+    { "do": "move", "to": [980, 440], "dur": 0.9, "ease": "inOutSine" },
+    { "do": "wait", "sec": 1.4 },
+    { "do": "move", "to": [720, 760], "dur": 0.9, "ease": "inOutSine" },
+    { "do": "wait", "sec": 0.7 }
+  ],
+  "compose": { "size": "1360x540", "scale": 2, "rect": "0,0,1360,540", "radius": 0, "crop": "40,135,1360,540", "cursor": true, "screen": false, "posterAt": 2.0 }
+}

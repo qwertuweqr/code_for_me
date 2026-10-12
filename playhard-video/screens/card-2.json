@@ -1,0 +1,41 @@
+{
+ "source_size": [
+  890,
+  1330
+ ],
+ "corners": [
+  [
+   254.146,
+   77.99
+  ],
+  [
+   651.023,
+   30.976
+  ],
+  [
+   510.1,
+   1293.696
+  ],
+  [
+   110.162,
+   1221.056
+  ]
+ ],
+ "flat": [
+  1000.0,
+  3005.281311164534
+ ],
+ "aspect_wh": 0.33274755221250957,
+ "radius_flat": 162.0,
+ "holes_flat": [
+  {
+   "cx": 504.46187689942553,
+   "cy": 147.08230732347025,
+   "r": 29.104651173414304
+  }
+ ],
+ "iou": 0.9944174883915062,
+ "_note": "corners TL TR BR BL in source pixels; flat space is FW x FH; radius and holes in flat units",
+ "_device": "Software: handheld terminal (products-1/2--desktop.png)",
+ "_learned_from": "unitodi.ru/local/templates/unitodi/assets/images/products-1/2--desktop.png vs 2--desktop-hover.png (RU), 2026-10-12"
+}
